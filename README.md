@@ -62,7 +62,7 @@ pnpm lint
 To format the code:
 
 ```sh
-pnpm format
+pnpm prettier
 ```
 
 ## Contributing

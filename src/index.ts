@@ -113,7 +113,18 @@ userNotiQueue.process(async (job, done) => {
     }
 
     user.send(
-        `🍊📅 **Reminder:** \n\n Name: ${reminder.name} \n Start Date: <t:${reminder.date.getTime().toString().slice(0, -3)}> ${reminder.meetingChannelId ? `\n Meeting In: <#${reminder.meetingChannelId}>` : ''} ${reminder.description ? `\n Description: ${reminder.description}` : ''} \n\n  <@${user.id}>`
+        `
+            🍊📅 **Reminder:** 
+            \n
+            \n 
+            Name: ${reminder.name} \n 
+            Start Date: <t:${reminder.date.getTime().toString().slice(0, -3)}> 
+            ${reminder.meetingChannelId ? `\n Meeting In: <#${reminder.meetingChannelId}>` : ''} 
+            ${reminder.description ? `\n Description: ${reminder.description}` : ''} 
+            \n
+            \n  
+            <@${user.id}>
+        `
     )
     done()
 })
