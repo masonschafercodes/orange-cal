@@ -7,13 +7,7 @@ import {
 } from 'discord.js'
 
 export async function editReminderEmbed(
-    reminder: {
-        name: string
-        description?: string
-        date: Date
-        attendees: string[]
-        meetingChannelId?: string
-    },
+    reminder: IEditReminderEmbedInput,
     member: GuildMember | undefined
 ) {
     const utcTime = reminder.date.getTime().toString().slice(0, -3)

@@ -8,23 +8,24 @@ import Queue from 'bull'
 import { Reminder } from './schemas/reminder'
 import { editReminderEmbed } from './utils/reminder'
 
-export const userNotiQueue = new Queue<{
-    userId: string
-    reminderId: string
-}>('user-reminder-notifications', {
-    redis: {
-        host: config.redisHost,
-        port: config.redisPort,
-    },
-})
-export const reminderUpdateQueue = new Queue<{
-    messageId: string
-}>('reminder-update', {
-    redis: {
-        host: config.redisHost,
-        port: config.redisPort,
-    },
-})
+const redisConfig = {
+    host: config.redisHost,
+    port: config.redisPort,
+}
+
+export const userNotiQueue = new Queue<IUserNotiQueue>(
+    'user-reminder-notifications',
+    {
+        redis: redisConfig,
+    }
+)
+export const reminderUpdateQueue = new Queue<IReminderUpdateQueue>(
+    'reminder-update',
+    {
+        redis: redisConfig,
+    }
+)
+
 const client = new Client({
     intents: ['Guilds', 'GuildMessages', 'DirectMessages'],
 })
@@ -135,10 +136,10 @@ client
         try {
             await connect(config.mongoUri)
         } catch (error) {
-            console.error('Error connecting to MongoDB: ', error)
+            console.error('❌ Error connecting to MongoDB: ', error)
             process.exit(1)
         }
     })
     .catch((error) => {
-        console.error('Error logging in: ', error)
+        console.error('❌ Error logging in: ', error)
     })

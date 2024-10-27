@@ -1,17 +1,5 @@
 import { Schema, model } from 'mongoose'
 
-export interface IReminder {
-    userId: string
-    guildId: string
-    name: string
-    description?: string
-    date: Date
-    messageId: string
-    channelId: string
-    attendees: string[]
-    meetingChannelId?: string
-}
-
 const reminderSchema = new Schema<IReminder>({
     userId: { type: String, required: true },
     guildId: { type: String, required: true },
