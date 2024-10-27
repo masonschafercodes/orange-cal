@@ -1,0 +1,37 @@
+{
+    "name": "orange-cal",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "tsx watch src/index.ts",
+        "start": "node dist/index.js",
+        "build": "tsup src/index.ts --minify",
+        "prettier": "prettier --write .",
+        "lint": "eslint ."
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "bull": "^4.16.3",
+        "chrono-node": "^2.7.7",
+        "discord.js": "^14.15.3",
+        "dotenv": "^16.4.5",
+        "mongoose": "^8.5.3",
+        "prettier": "^3.3.3"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.9.0",
+        "@types/bull": "^4.10.4",
+        "@typescript-eslint/eslint-plugin": "^8.2.0",
+        "@typescript-eslint/parser": "^8.2.0",
+        "eslint": "^9.9.0",
+        "eslint-config-prettier": "^9.1.0",
+        "globals": "^15.9.0",
+        "tsup": "^8.2.4",
+        "tsx": "^4.17.0",
+        "typescript": "^5.5.4",
+        "typescript-eslint": "^8.2.0"
+    }
+}
