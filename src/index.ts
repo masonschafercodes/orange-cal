@@ -125,6 +125,7 @@ client
             await connect(config.mongoUri)
         } catch (error) {
             console.error('Error connecting to MongoDB: ', error)
+            process.exit(1)
         }
     })
     .catch((error) => {
