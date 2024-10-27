@@ -65,6 +65,19 @@ To format the code:
 pnpm prettier
 ```
 
+## Adding Bot to Discord Server
+
+1. Create a new application on the [Discord Developer Portal](https://discord.com/developers/applications).
+2. Add a bot to the application.
+3. Copy the bot token and add it to the `.env` file.
+4. Add the bot to your Discord server using the following URL:
+
+    ```
+    https://discord.com/oauth2/authorize?client_id=<CLIENT_ID>&permissions=1689934340028480&scope=bot%20applications.commands
+    ```
+
+    Replace `<CLIENT_ID>` with your application's client ID.
+
 ## Contributing
 
 Feel free to open issues or submit pull requests for any improvements or bug fixes.
