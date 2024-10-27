@@ -109,6 +109,10 @@ export async function execute(interaction: ButtonInteraction) {
         })
     }
 
+    if (existingReminder.description) {
+        embed.setDescription(existingReminder.description)
+    }
+
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
             .setCustomId('getReminder')

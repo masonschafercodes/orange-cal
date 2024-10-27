@@ -32,6 +32,11 @@ export const data = new SlashCommandBuilder()
             .setName('channel')
             .setDescription('The channel you want everyone to meet in')
     )
+    .addStringOption((option) =>
+        option
+            .setName('description')
+            .setDescription('A description of the event')
+    )
 
 export async function execute(interaction: CommandInteraction) {
     await interaction.deferReply()
@@ -42,6 +47,7 @@ export async function execute(interaction: CommandInteraction) {
     const name = interaction.options.get('name')?.value as string
     const date = interaction.options.get('date')?.value as string
     const channel = interaction.options.get('channel')?.value as string
+    const description = interaction.options.get('description')?.value as string
 
     const parsedDate = chrono.parseDate(date)
 
@@ -77,6 +83,10 @@ export async function execute(interaction: CommandInteraction) {
         })
     }
 
+    if (description) {
+        embed.setDescription(description)
+    }
+
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
             .setCustomId('getReminder')
@@ -105,6 +115,7 @@ export async function execute(interaction: CommandInteraction) {
             messageId: message.id,
             channelId,
             meetingChannelId: channel || undefined,
+            description: description || undefined,
         })
 
         reminderUpdateQueue.add(

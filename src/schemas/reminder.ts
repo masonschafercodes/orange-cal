@@ -4,6 +4,7 @@ interface IReminder {
     userId: string
     guildId: string
     name: string
+    description?: string
     date: Date
     messageId: string
     channelId: string
@@ -15,6 +16,7 @@ const reminderSchema = new Schema<IReminder>({
     userId: { type: String, required: true },
     guildId: { type: String, required: true },
     name: { type: String, required: true },
+    description: { type: String },
     date: { type: Date, required: true },
     messageId: { type: String, required: true },
     channelId: { type: String, required: true },
