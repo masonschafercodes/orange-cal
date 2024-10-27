@@ -1,14 +1,8 @@
-import {
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    CommandInteraction,
-    EmbedBuilder,
-    SlashCommandBuilder,
-} from 'discord.js'
+import { CommandInteraction, SlashCommandBuilder } from 'discord.js'
 import * as chrono from 'chrono-node/en'
 import { Reminder } from '../schemas/reminder'
 import { reminderUpdateQueue } from '..'
+import { editReminderEmbed, reminderEmbedButtons } from '../utils/reminder'
 
 export const data = new SlashCommandBuilder()
     .setName('create')
@@ -41,7 +35,14 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction: CommandInteraction) {
     await interaction.deferReply()
 
-    const { id, username } = interaction.user
+    const { id } = interaction.user
+    const member = interaction.guild?.members.cache.get(interaction.user.id)
+
+    if (!member) {
+        await interaction.editReply('You are not in a guild')
+        return
+    }
+
     const guildId = interaction.guildId
     const channelId = interaction.channelId
     const name = interaction.options.get('name')?.value as string
@@ -56,49 +57,18 @@ export async function execute(interaction: CommandInteraction) {
         return
     }
 
-    const utcTime = parsedDate.getTime().toString().slice(0, -3)
-
-    const embed = new EmbedBuilder()
-        .setTitle(`New Reminder: ${name}`)
-        .addFields([
-            {
-                name: 'Date',
-                value: `<t:${utcTime}> (<t:${utcTime}:R>)`,
-            },
-            {
-                name: 'Attendees (0)',
-                value: `>>> -`,
-                inline: true,
-            },
-        ])
-        .setFooter({
-            text: `Created by ${username}`,
-        })
-        .setColor('Orange')
-
-    if (channel) {
-        embed.addFields({
-            name: 'Meeting In',
-            value: `<#${channel}>`,
-        })
-    }
-
-    if (description) {
-        embed.setDescription(description)
-    }
-
-    const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-            .setCustomId('getReminder')
-            .setEmoji('🍊')
-            .setLabel('Get Reminder')
-            .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-            .setCustomId('editReminder')
-            .setEmoji('⚙️')
-            .setLabel('Edit Reminder')
-            .setStyle(ButtonStyle.Secondary)
+    const embed = await editReminderEmbed(
+        {
+            attendees: [],
+            date: parsedDate,
+            name,
+            description,
+            meetingChannelId: channel || undefined,
+        },
+        member
     )
+
+    const buttons = reminderEmbedButtons()
 
     try {
         const message = await interaction.editReply({

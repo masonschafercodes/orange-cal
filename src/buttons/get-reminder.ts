@@ -1,12 +1,7 @@
-import {
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonInteraction,
-    ButtonStyle,
-    EmbedBuilder,
-} from 'discord.js'
+import { ButtonInteraction } from 'discord.js'
 import { Reminder } from '../schemas/reminder'
 import { userNotiQueue } from '..'
+import { editReminderEmbed, reminderEmbedButtons } from '../utils/reminder'
 
 export async function execute(interaction: ButtonInteraction) {
     await interaction.deferReply({
@@ -72,59 +67,11 @@ export async function execute(interaction: ButtonInteraction) {
 
     await interaction.editReply('You are now attending this reminder')
 
-    const utcTime = existingReminder.date.getTime().toString().slice(0, -3)
-    let attendeesString = attendees
-        .slice(0, 10)
-        .map((id) => `<@${id}>`)
-        .join('\n')
-
-    if (attendees.length > 10) {
-        attendeesString += `\nand ${attendees.length - 10} more...`
-    }
-
     const member = interaction.guild?.members.cache.get(existingReminder.userId)
     const message = interaction.message
-    const embed = new EmbedBuilder()
-        .setTitle(`New Reminder: ${existingReminder.name}`)
-        .addFields([
-            {
-                name: 'Date',
-                value: `<t:${utcTime}> (<t:${utcTime}:R>)`,
-            },
-            {
-                name: `Attendees (${attendees.length})`,
-                value: `>>> ${attendeesString}`,
-                inline: true,
-            },
-        ])
-        .setFooter({
-            text: `Created by ${member?.user.username || 'Unknown'}`,
-        })
-        .setColor('Orange')
+    const embed = await editReminderEmbed(existingReminder, member)
 
-    if (existingReminder.meetingChannelId) {
-        embed.addFields({
-            name: 'Meeting In',
-            value: `<#${existingReminder.meetingChannelId}>`,
-        })
-    }
-
-    if (existingReminder.description) {
-        embed.setDescription(existingReminder.description)
-    }
-
-    const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-            .setCustomId('getReminder')
-            .setEmoji('🍊')
-            .setLabel('Get Reminder')
-            .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-            .setCustomId('editReminder')
-            .setEmoji('⚙️')
-            .setLabel('Edit Reminder')
-            .setStyle(ButtonStyle.Secondary)
-    )
+    const buttons = reminderEmbedButtons()
 
     await message.edit({
         embeds: [embed],

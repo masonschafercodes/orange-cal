@@ -1,4 +1,4 @@
-import { ChannelType, Client, EmbedBuilder } from 'discord.js'
+import { ChannelType, Client } from 'discord.js'
 import { config } from './config'
 import { commands } from './commands'
 import { buttons } from './buttons'
@@ -6,6 +6,7 @@ import { deployCommands } from './deploy-commands'
 import { connect } from 'mongoose'
 import Queue from 'bull'
 import { Reminder } from './schemas/reminder'
+import { editReminderEmbed } from './utils/reminder'
 
 export const userNotiQueue = new Queue<{
     userId: string
@@ -83,46 +84,9 @@ reminderUpdateQueue.process(async (job, done) => {
         return done()
     }
 
-    const utcTime = reminder.date.getTime().toString().slice(0, -3)
-    let attendeesString = reminder.attendees
-        .slice(0, 10)
-        .map((id) => `<@${id}>`)
-        .join('\n')
-
-    if (reminder.attendees.length > 10) {
-        attendeesString += `\nand ${reminder.attendees.length - 10} more...`
-    }
-
     const member = channel.guild.members.cache.get(reminder.userId)
 
-    const embed = new EmbedBuilder()
-        .setTitle(`New Reminder: ${reminder.name}`)
-        .addFields([
-            {
-                name: 'Date',
-                value: `<t:${utcTime}> (Already Started)`,
-            },
-            {
-                name: `Attendees (${reminder.attendees.length})`,
-                value: `>>> ${attendeesString}`,
-                inline: true,
-            },
-        ])
-        .setFooter({
-            text: `Created by ${member?.user.username || 'Unknown'}`,
-        })
-        .setColor('Orange')
-
-    if (reminder.meetingChannelId) {
-        embed.addFields({
-            name: 'Meeting In',
-            value: `<#${reminder.meetingChannelId}>`,
-        })
-    }
-
-    if (reminder.description) {
-        embed.setDescription(reminder.description)
-    }
+    const embed = await editReminderEmbed(reminder, member)
 
     await message.edit({
         embeds: [embed],

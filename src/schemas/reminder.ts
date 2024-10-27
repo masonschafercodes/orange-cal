@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose'
 
-interface IReminder {
+export interface IReminder {
     userId: string
     guildId: string
     name: string
