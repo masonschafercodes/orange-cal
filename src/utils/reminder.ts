@@ -2,9 +2,14 @@ import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
+    ChannelType,
+    Client,
     EmbedBuilder,
     GuildMember,
 } from 'discord.js'
+import Queue from 'bull'
+import { config } from '../config'
+import { Reminder } from '../schemas/reminder'
 
 export async function editReminderEmbed(
     reminder: IEditReminderEmbedInput,
@@ -73,4 +78,92 @@ export function reminderEmbedButtons() {
     )
 
     return buttons
+}
+
+const redisQueueConfig: Queue.QueueOptions = {
+    redis: {
+        host: config.redisHost,
+        port: config.redisPort,
+    },
+}
+
+export const userNotiQueue = new Queue<IUserNotiQueue>(
+    'user-reminder-notifications',
+    redisQueueConfig
+)
+export const reminderUpdateQueue = new Queue<IReminderUpdateQueue>(
+    'reminder-update',
+    redisQueueConfig
+)
+
+export function createReminderQueues(client: Client) {
+    reminderUpdateQueue.process(async (job, done) => {
+        const { messageId } = job.data
+        const reminder = await Reminder.findOne({
+            messageId,
+        })
+
+        if (!reminder) {
+            console.error('Reminder not found: ', messageId)
+            return done()
+        }
+
+        const channel = client.channels.cache.get(reminder.channelId)
+
+        if (!channel || channel.type !== ChannelType.GuildText) {
+            console.error('Channel not found: ', reminder.channelId)
+            return done()
+        }
+
+        const message = await channel.messages.fetch(messageId)
+
+        if (!message) {
+            console.error('Message not found: ', messageId)
+            return done()
+        }
+
+        const member = channel.guild.members.cache.get(reminder.userId)
+
+        const embed = await editReminderEmbed(reminder, member)
+
+        await message.edit({
+            embeds: [embed],
+            components: [],
+        })
+
+        done()
+    })
+
+    userNotiQueue.process(async (job, done) => {
+        const { userId, reminderId } = job.data
+        const user = await client.users.fetch(userId)
+
+        if (!user) {
+            console.error('User not found: ', userId)
+            return done()
+        }
+
+        const reminder = await Reminder.findById(reminderId)
+
+        if (!reminder) {
+            console.error('Reminder not found: ', reminderId)
+            return done()
+        }
+
+        user.send(
+            `
+                🍊📅 **Reminder:** 
+                \n
+                \n 
+                Name: ${reminder.name} \n 
+                Start Date: <t:${reminder.date.getTime().toString().slice(0, -3)}> 
+                ${reminder.meetingChannelId ? `\n Meeting In: <#${reminder.meetingChannelId}>` : ''} 
+                ${reminder.description ? `\n Description: ${reminder.description}` : ''} 
+                \n
+                \n  
+                <@${user.id}>
+            `
+        )
+        done()
+    })
 }

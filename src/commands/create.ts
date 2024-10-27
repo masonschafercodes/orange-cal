@@ -1,8 +1,11 @@
 import { CommandInteraction, SlashCommandBuilder } from 'discord.js'
 import * as chrono from 'chrono-node/en'
 import { Reminder } from '../schemas/reminder'
-import { reminderUpdateQueue } from '..'
-import { editReminderEmbed, reminderEmbedButtons } from '../utils/reminder'
+import {
+    editReminderEmbed,
+    reminderEmbedButtons,
+    reminderUpdateQueue,
+} from '../utils/reminder'
 
 export const data = new SlashCommandBuilder()
     .setName('create')

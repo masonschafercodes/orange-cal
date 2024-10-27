@@ -1,7 +1,10 @@
 import { ButtonInteraction } from 'discord.js'
 import { Reminder } from '../schemas/reminder'
-import { userNotiQueue } from '..'
-import { editReminderEmbed, reminderEmbedButtons } from '../utils/reminder'
+import {
+    editReminderEmbed,
+    reminderEmbedButtons,
+    userNotiQueue,
+} from '../utils/reminder'
 
 export async function execute(interaction: ButtonInteraction) {
     await interaction.deferReply({
