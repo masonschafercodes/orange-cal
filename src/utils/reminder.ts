@@ -151,18 +151,7 @@ export function createReminderQueues(client: Client) {
         }
 
         user.send(
-            `
-                🍊📅 **Reminder:** 
-                \n
-                \n 
-                Name: ${reminder.name} \n 
-                Start Date: <t:${reminder.date.getTime().toString().slice(0, -3)}> 
-                ${reminder.meetingChannelId ? `\n Meeting In: <#${reminder.meetingChannelId}>` : ''} 
-                ${reminder.description ? `\n Description: ${reminder.description}` : ''} 
-                \n
-                \n  
-                <@${user.id}>
-            `
+            `🍊📅 **Reminder:** \n\nName: ${reminder.name} \nStart Date: <t:${reminder.date.getTime().toString().slice(0, -3)}> \nMeeting In: ${reminder.meetingChannelId ? `<#${reminder.meetingChannelId}>` : '-'} \nDescription: ${reminder.description || '-'} \n\n<@${user.id}>`
         )
         done()
     })
